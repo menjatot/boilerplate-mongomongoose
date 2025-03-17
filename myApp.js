@@ -8,52 +8,94 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true,
 });
 
-
 const personSchema = new mongoose.Schema({
-  name: { type: String, required: true } ,
+  name: { type: String, required: true },
   age: { type: Number },
   favoriteFoods: [String],
 });
 
 // let Person;
-const Person=mongoose.model('Person', personSchema)
+const Person = mongoose.model("Person", personSchema);
 
 const createAndSavePerson = (done) => {
-  const me = new Person({ name: "Alejandro", age: 46, favoriteFoods: ['paella', 'cacaus', 'cerveza'] })
-  me.save((err, data) => {
-    if (err) {
-      return console.error(err)
-    }
-    done(null, data);
+  const me = new Person({
+    name: "Alejandro",
+    age: 46,
+    favoriteFoods: ["paella", "cacaus", "cerveza"]
+  });
+  me.save()
+    .then(data => {
+      done(null, data);
+    })
+    .catch(err => {
+      console.error(err);
+      done(err);
+    });
+};
+
+/** 4) Create many People with `Model.create()` */
+const  arrayOfPeople = [
+  {name: "Frankie", age: 74, favoriteFoods: ["Del Taco"]},
+  {name: "Sol", age: 76, favoriteFoods: ["roast chicken"]},
+  {name: "Robert", age: 78, favoriteFoods: ["wine"]}
+];
+
+const createManyPeople = (arrayOfPeople, done) => {
+
+  Person.create(arrayOfPeople, (err, people) => {
+    if (err) console.log(err);
+    
+    done(null, people)
   })
 };
 
-const createManyPeople = (arrayOfPeople, done) => {
-  done(null /*, data*/);
-};
-
 const findPeopleByName = (personName, done) => {
-  done(null /*, data*/);
+  Person.find({name:personName}, (err, personFound) => {
+    if(err) console.log (err)
+    console.log(pensonFound, ' finded')
+  done(null, personFound);
+  })
 };
 
 const findOneByFood = (food, done) => {
-  done(null /*, data*/);
+  Person.findOne({ favoriteFoods: food }, (err, personFound) => {
+    if (err) console.log(err);
+    console.log(personFound)
+    done(null, personFound);
+  })
 };
 
 const findPersonById = (personId, done) => {
-  done(null /*, data*/);
+  Person.findById(personId, (err, personFound) => {
+    if (err) console.log(err);
+  console.log(personFound);
+    done(null, personFound);
+  })
 };
 
 const findEditThenSave = (personId, done) => {
-  const foodToAdd = "hamburger";
+  Person.findById(personId, (err, personFound) => {
+    if(err) console.log(err);
+    const foodToAdd = "hamburguer";
+    personFound.favoriteFoods.push(foodToAdd)
+    personFound.save((err, updatedPerson) => {
+      if (err) console.log(err);
+      console.log(updatedPerson);
+      done(null, updatedPerson);
+    });
 
-  done(null /*, data*/);
+})
+
+
 };
 
 const findAndUpdate = (personName, done) => {
   const ageToSet = 20;
+  Person.findOneAndUpdate({ name: personName }, { age: ageToSet }, { new: true }, (err, personFound, ) => {
+    if(err)console.log(err);
+    done(null,personFound);
+  })
 
-  done(null /*, data*/);
 };
 
 const removeById = (personId, done) => {
